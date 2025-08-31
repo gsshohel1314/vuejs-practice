@@ -1,0 +1,240 @@
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <section class="bg-green-50">
+            
+            <div class="container m-auto py-10 px-6">
+                <h2 class="text-4xl text-center font-bold text-gray-700 mb-6">MovieOPedia</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-[30%_68%] w-full gap-6">
+                    <main>
+                        <div class="bg-white p-6 rounded-lg shadow-md text-center md:text-left">
+                            <form @submit.prevent="handleSubmit">
+                                <div class="mb-4">
+                                    <input v-model.trim="form.name" type="text" id="name" name="name" class="appearance-none px-3 py-2 w-full border border-gray-300 rounded shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="Movie Name" required />
+                                </div>
+
+                                <div class="mb-2">
+                                    <textarea v-model.trim="form.description" id="description" name="description" class="appearance-none px-3 py-2 w-full border border-gray-300 rounded shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" rows="2" placeholder="Short description" required></textarea>
+                                </div>
+
+                                <div class="mb-4">
+                                    <select v-model="form.type" id="type" name="type" class="appearance-none px-3 py-2 w-full border border-gray-300 rounded shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required>
+                                        <option value="Epic">Epic</option>
+                                        <option value="Drama">Drama</option>
+                                        <option value="Period Drama">Period Drama</option>
+                                        <option value="Prison Drama">Prison Drama</option>
+                                    </select>
+                                </div>
+                    
+                                <div class="mb-4">
+                                    <input v-model.number="form.year" type="text" id="year" name="year" class="appearance-none px-3 py-2 w-full border border-gray-300 rounded shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="Release Year - eg. 2020" required />
+                                </div>
+
+                                <div class="mb-4">
+                                    <input v-model.trim="form.duration" type="text" id="duration" name="duration" class="appearance-none px-3 py-2 w-full border border-gray-300 rounded shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="Duration - 2h 22m" required />
+                                </div>
+
+                                <div class="mb-4">
+                                    <input v-model.number="form.imdbRating" type="text" id="imdbRating" name="imdbRating" class="appearance-none px-3 py-2 w-full border border-gray-300 rounded shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="IMDb rating - eg. 8.7" required />
+                                </div>
+
+                                <div>
+                                    <button
+                                        type="submit"
+                                        class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
+                                    >
+                                        Add Movie
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </main>
+
+                    <aside>
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="flex items-center justify-between space-x-4 mb-5">
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">Movie List</h3>
+                                    <p v-if="showLimitFullMessage" class="text-red-500">Your movie added limit is full!</p>
+                                    <p v-else class="text-yellow-500">You can add more {{remainingLimit}} movies</p>
+                                </div>
+
+                                <button 
+                                    v-on:click="removeAllMovies" 
+                                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline"
+                                >
+                                    Remove All
+                                </button>
+                            </div>
+
+                            <div class="border border-gray-300 rounded-sm">
+                                <ul class="divide-y divide-gray-300">
+                                    <li v-for="(movie,index) in movies" :key="movie.name" class="p-3 flex justify-between items-center">
+                                        <div>
+                                            <p class="text-xl font-semibold text-black-500">{{index+1}}. {{movie.name}}</p>
+                                            <p class="text-gray-500">
+                                                {{truncatedDescription}}
+                                                <button @click="toggleFullDescription" class="ml-2 text-green-500 hover:text-green-600 hover:underline text-sm">
+                                                    {{ showFullDescription ? 'Less' : "More" }}
+                                                </button>
+                                            </p>
+                                            <p class="text-gray-500">{{movie.year}} &nbsp; . &nbsp; {{movie.duration}} &nbsp; . &nbsp; {{movie.type}}</p>
+                                            <p class="text-gray-500">{{movie.imdbRating}}/10</p>
+                                        </div>
+
+                                        <button 
+                                            v-on:click="removeMovie(index)" 
+                                            class="bg-red-500 hover:bg-red-600 text-white w-8 h-8 flex items-center justify-center rounded-full text-sm focus:outline-none focus:shadow-outline flex-shrink-0"
+                                        >
+                                            x
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- <ul v-for="(movie,index) in getAllMovies" :key="movie.name" class="w-full rounded-lg mt-2 mb-3 text-blue-800">
+                                <li class="mb-1">
+                                    <p class="w-fill flex p-3 pl-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex justify-between">
+                                        {{index+1}}. {{movie}}
+                                         <button 
+                                            v-on:click="removeMovie(index)" 
+                                            class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline"
+                                        >
+                                            x
+                                        </button>
+                                    </p>
+                                </li>
+                            </ul> -->
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, computed, watch } = Vue;
+
+        const app = createApp({
+            setup(){
+                const showLimitFullMessage = ref(false);
+                
+                const movies  = reactive([
+                    {
+                        name: "The Shawshank Redemption",
+                        description: "A banker convicted of uxoricide forms a friendship over a quarter century with a hardened convict, while maintaining his innocence and trying to remain hopeful through simple compassion.",
+                        type: "Drama",
+                        year: 1994,
+                        duration: "2h 22m",
+                        imdbRating: 9.3
+                    }
+                ])
+
+                const form = reactive({
+                    name: "",
+                    description: "",
+                    type: "Drama",
+                    year: "",
+                    duration: "",
+                    imdbRating: ""
+                })
+
+                const handleSubmit = () => {
+                    const newMovie = {
+                        name: form.name,
+                        description: form.description,
+                        type: form.type,
+                        year: form.year,
+                        duration: form.duration,
+                        imdbRating: form.imdbRating
+                    }
+
+                    if (movies.length < 6) {
+                        // movies.push({...form});
+                        movies.push(newMovie);
+                        form.name = "";
+                        form.description = "",
+                        form.type = "",
+                        form.year = "";
+                        form.duration = "";
+                        form.imdbRating = ""
+                    }
+                }
+
+                const showFullDescription = ref(false);
+
+                const toggleFullDescription = () => {
+                    showFullDescription.value = !showFullDescription.value;
+                }
+
+                const truncatedDescription = computed(() => {
+                    let modifiedDesc =  movies.map((movie) => {
+                        let desc = movie.description ?? "";
+                        
+                        if (showFullDescription.value == false & desc.length > 90) {
+                            desc = desc.substring(0, 90) + "...";
+                        }
+                        
+                        return desc;
+                    })
+                    return modifiedDesc[0];
+                })
+
+                // const getAllMovies = () => {
+                //     return movies.map((movie) => {
+                //         return `${movie.name} was released in ${movie.year}`;
+                //     })
+                // }
+
+                // replace with computed property
+                // const getAllMovies = computed(() => {
+                //     return movies.map((movie) => {
+                //         return `${movie.name} was released in ${movie.year}. Duration is ${movie.duration}. IMDb rating is ${movie.imdbRating}`;
+                //     })
+                // })
+
+                const removeMovie = (index) => {
+                   movies.splice(index, 1);
+                }
+
+                const removeAllMovies = () => {
+                    // movies.length = 0;
+                    movies.splice(0);
+                }
+
+                const remainingLimit = computed(() => {
+                    return 6 - movies.length
+                });
+
+                watch(movies, (newValue, oldValue) => {
+                    if (movies.length == 6) {
+                        showLimitFullMessage.value = true;
+                    } else {
+                        showLimitFullMessage.value = false;
+                    }
+                })
+
+                return {
+                    showLimitFullMessage,
+                    movies,
+                    form,
+                    // getAllMovies,
+                    handleSubmit,
+                    showFullDescription,
+                    toggleFullDescription,
+                    truncatedDescription,
+                    removeMovie,
+                    removeAllMovies,
+                    remainingLimit
+                }
+            }
+        })
+        
+        app.mount('#app')
+    </script>
+</body>
