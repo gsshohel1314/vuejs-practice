@@ -1,0 +1,83 @@
+<head>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Two Way Data Binding & Model Modifiers -->
+        Name: <input type="text" v-model.trim="name">
+        Age: <input type="number" v-model.lazy="age">
+        <p>{{name}} is {{age}} years old</p>
+        
+        <!-- Computed Properties -->
+        <p>{{getFullName}}</p>
+        <p>Count: {{counter}}</p>
+        <button v-on:click="counter++">Increment</button>
+        <button v-on:click="counter--">Decrement</button>
+
+        <!-- Watcher for reactive properties -->
+        <p>Lucky number: {{luckyNumber.number}}</p>
+        <button v-on:click="generateRandomLuckyNumber">Genearate Random Number</button>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, computed, watch } = Vue;
+
+        const app = createApp({
+            setup(){
+                // Two Way Data Binding & Model Modifiers
+                const name = ref("John");
+                const age = ref(30);
+
+                // Computed Properties
+                const counter = ref(0);
+                const firstName = ref("Shohel");
+                const lastName = ref("Rana");
+                // getFullName will only be invoked when firstName or lastName will be updated. 
+                const getFullName = computed(() => {
+                    console.log("getFullName was called");
+                    const fullName = firstName.value + " " + lastName.value;
+                    return fullName;
+                })
+
+                // Watcher
+                // watcher basically data change observer
+                // Used for side effect when changed the reactive data value. like, api call, update another value etc.
+                watch(counter, (newValue, oldValue) => {
+                    console.log(`Counter value changed form ${oldValue} to ${newValue}`);
+                    if (newValue == 5) {
+                        alert('Counter value is 5');
+                    }
+                })
+
+                // Watcher for reactive properties
+                const luckyNumber = reactive({
+                    number: 0
+                });
+
+                const generateRandomLuckyNumber = () => {
+                    let randNum = Math.floor(Math.random() * 5) + 1;
+                    luckyNumber.number = randNum;
+                }
+
+                watch(() => luckyNumber.number, (newValue, oldValue) => {
+                    console.log(`Lucky number changed form ${oldValue} to ${newValue}`);
+                    if (newValue == 3) {
+                        alert('Lucky number is 3');
+                    }
+                })
+
+                return {
+                    name,
+                    age,
+                    counter,
+                    getFullName,
+                    luckyNumber,
+                    generateRandomLuckyNumber
+                }
+            }
+        })
+        
+        app.mount('#app')
+    </script>
+</body>
