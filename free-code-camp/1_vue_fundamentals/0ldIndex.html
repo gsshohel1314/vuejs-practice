@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vue Fundamentals</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>{{displayMessage()}}</h1>
+
+        <p>Lucky Number is: {{luckyNumber}}</p>
+        <p>Lucky number is an {{luckyNumber%2 == 0 ? "even" : "odd"}} number</p>
+        <button v-on:click="getRandomLuckyNumber">Generate Random Number</button>
+
+        <p>Car List: {{cars}}</p>
+        <p>{{updateCarList()}}</p>
+
+        <p>Employee Info: {{employee.name}} is {{employee.age}} years old. His salary is {{employee.salary}}</p>
+        <span>{{updateEmployeeSalary()}}</span>
+
+        <p>Count: {{count}}</p>
+        <button v-on:click="increment">Increment</button>
+        <button v-on:click="decriment">Decriment</button>
+
+        <p>Your marks is: {{marks}}</p>
+        <p>{{updateMarks()}}</p>
+
+        <h2>==========Vue Directives==========</h2>
+        <p v-html="title"></p>
+        
+        <p v-once>{{msg}}</p>
+        <p>{{msg}}</p>
+        <button v-on:click="changeMessage">Change Message</button>
+
+        <p><a v-bind:href="blogUrl" target="_blank">Visit Blog</a></p>
+        
+        <p v-show="employee.hasCorporateCard">Spending Limit for Card: {{employee.spendingLimit}}</p>
+        
+        <p v-if="employee.hasCorporateCard">
+            Spending Limit for Card: {{employee.spendingLimit}}
+        </p>
+        <p v-else-if="employee.salary > 3000 && employee.yearsWithCompany >= 1">
+            Employee is eligible for a corporate card.
+        </p>
+        <p v-else>
+            Employee is not eligible for a corporate card.
+        </p>
+
+        <span>Fruits Are:</span>
+        <ul>
+            <li v-for="(fruit, index) in fruits" :key="fruit">
+                <span v-once>{{fruit}}</span>
+            </li>
+        </ul>
+
+        <p>Employee Details:</p>
+        <ul>
+            <li v-for="(value, key) in employee">
+                {{key}}: {{value}}
+            </li>
+        </ul>
+
+        <p>Projects in Pipeline:</p>
+        <ul>
+            <li v-for="(project, index) in employee.projects" :key="project.name">
+                Project {{index + 1}} - "{{project.name}}" timeline is - {{project.timeline}}
+            </li>
+        </ul>
+
+        <h2>==========Events in vue==========</h2>
+        <a href="https://www.google.com" v-on:click.prevent="buttonClick('Vue is Exciting - Link', $event)">
+            google
+        </a>
+        <div v-on:click.once="buttonClick('Vue is Exciting - Div', $event)">
+            Someting Exciting
+            <button v-on:click.stop="buttonClick('Vue is Exciting - Button', $event)">Click Me</button>
+            <p>X : {{x}}</p>
+            <p>Y : {{y}}</p>
+        </div>
+
+        <div>
+            Event tigger by key modifires:
+            <input v-on:keyup.ctrl.enter="pressEnter" type="text" placeholder="Key modifires">
+        </div>
+
+        
+        <h2>==========Data binding==========</h2>
+        <div>
+            Name:
+            <input v-model.trim="name" type="text" id="name" name="name" placeholder="Name">
+            <br><br>
+            Age:
+            <input v-model.lazy="age" type="number" id="age" name="age" placeholder="age">
+            <p>{{name}} is {{age}} years old</p>
+        </div>
+
+        <p>Counter: {{counter}}</p>
+        <p>{{getFullName}}</p>
+        <button v-on:click="counter++">Increment</button>
+        <button v-on:click="counter--">Decrement</button>
+       
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, computed } = Vue;
+
+        createApp({
+            setup(){
+                const message = ref('Hello from Vue!');
+                const displayMessage = () => {
+                    return message.value.toUpperCase();
+                }
+
+                const luckyNumber = ref(0);
+                const getRandomLuckyNumber = () => {
+                    let randNum = Math.floor(Math.random() * 10)+1;
+                    luckyNumber.value = randNum;
+                }
+
+                const cars = reactive(['Audi', 'BMW', 'Toyota', 'Volvo']);
+                const updateCarList = () => {
+                    setTimeout(() => {
+                        cars[4] = 'Alion';
+                    }, 3000)
+                }
+
+                const employee = reactive({
+                    name: "Jhon",
+                    age: 30,
+                    salary: 50000,
+                    hasCorporateCard: false,
+                    spendingLimit: 10000,
+                    yearsWithCompany: 5,
+                    projects: [
+                        {name: "Green A", timeline: "2 years"},
+                        {name: "Orange O", timeline: "9 months"},
+                        {name: "Red R", timeline: "3 years"}
+                    ], // array of objects
+                })
+                const updateEmployeeSalary = () => {
+                    setTimeout(() => {
+                        employee.salary = 60000;
+                    }, 3000)
+                }
+
+                const count = ref(0);
+                const increment = () => {
+                    count.value++;
+                }
+                const decriment = () => {
+                    if (count.value > 0) {
+                        count.value--;
+                    }
+                }
+
+                const marks = ref(77);
+                const updateMarks = () => {
+                    setTimeout(() => {
+                        marks.value = 99;
+                    }, 3000);
+                }
+
+                // ==========Vue Directives==========
+                const title = `<h1><u>Full Stack Developer (Laravel + Vue)</u></h1>`;
+
+                const msg = ref('Hello Vue with v-once');
+                const changeMessage = () => {
+                    msg.value = "Change Message!";
+                }
+
+                const blogUrl = "https://en.wikipedia.org/wiki/Blog";
+
+                const fruits = ['Apple', 'Banana', 'Orange', 'Pineapple', 'Mango'];
+ 
+                // ==========Events in vue==========
+                const x = ref(0);
+                const y = ref(0);
+                const buttonClick = (msg, event) => {
+                    alert(msg);
+                    x.value = event.x;
+                    y.value = event.y;                    
+                }
+
+                const pressEnter = () => {
+                    alert('Enter key press');
+                }
+
+                // ==========Data binding==========
+                const name = ref('Jhon');
+                const age = ref(30);
+
+                let counter = ref(0);
+                let firstName = ref('John');
+                let lastName = ref('Doe');
+
+                const getFullName = computed(() => {
+                    console.log('getFullName was called');
+                    return firstName.value + " " + lastName.value;
+                })
+
+
+
+
+
+
+
+
+
+                return {
+                    displayMessage,
+
+                    luckyNumber,
+                    getRandomLuckyNumber,
+
+                    cars,
+                    updateCarList,
+
+                    employee,
+                    updateEmployeeSalary,
+
+                    count,
+                    increment,
+                    decriment,
+
+                    marks,
+                    updateMarks,
+
+                    // Vue Directives
+                    title,
+
+                    msg,
+                    changeMessage,
+
+                    blogUrl,
+
+                    fruits,
+
+                    // Events in vue
+                    buttonClick,
+                    x,
+                    y,
+                    pressEnter,
+
+                    // Data binding
+                    name,
+                    age,
+
+                    counter,
+                    getFullName,
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
